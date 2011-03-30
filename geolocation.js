@@ -8,16 +8,17 @@
  * 
  * @author Manuel Bieh
  * @url http://www.manuel-bieh.de/
- * @version 0.9
+ * @version 1.0.9
  * @license http://www.gnu.org/licenses/lgpl-3.0.txt LGPL
  *
- * Date $LastChangedDate: 2010-08-29 22:18:07 +0200 (So, 29 Aug 2010) $
+ * Date $LastChangedDate: 2011-03-29 19:47:37 +0200 (Di, 29 Mrz 2011) $
  *
  */
 
-var GeolocationWrapper = function() {
 
-	var geo = this;
+(function() {
+
+	var geolocation = this;
 
 	this.init = function() {
 
@@ -26,29 +27,31 @@ var GeolocationWrapper = function() {
 			// Check for W3C Geolocation API standard support
 			if(typeof (navigator.geolocation) != 'undefined') {
 
-				geo.type = 'W3C Geolocation API';
-				geo.api = navigator.geolocation;
-				return true;
+				geolocation.type = 'W3C Geolocation API';
+				geolocation.api = navigator.geolocation;
 
 			// Check for Google Gears support. gears_init.js must be included!
 			} else if(typeof (window.google) != 'undefined' &&  typeof(window.google.gears) != 'undefined') {
 
-				geo.type = 'Google Gears';
-				geo.api = google.gears.factory.create('beta.geolocation');
-				return true;
+				geolocation.type = 'Google Gears';
+				geolocation.api = google.gears.factory.create('beta.geolocation');
 
 			// Checks for native Blackberry support
 			} else if (typeof(window.blackberry) != 'undefined' && blackberry.location.GPSSupported) {
 
-				geo.type = 'Blackberry OS';
-				geo.api = new BlackberryLocation();
-				return true;
+				geolocation.type = 'Blackberry OS';
+				geolocation.api = new BlackberryLocation();
 
 			} else {
 
 				return false;
 
 			}
+
+			window.navigator.geolocation = geolocation.api;
+			window.navigator.geolocation['type'] = geolocation.type;
+
+			return true;
 
 		} catch(e) {
 
@@ -70,8 +73,8 @@ var GeolocationWrapper = function() {
 	 */
 	this.getCurrentPosition = function(successCallback, errorCallback, options) {
 
-		if(geo.api) {
-			geo.api.getCurrentPosition(successCallback, errorCallback, options);
+		if(geolocation.api) {
+			geolocation.api.getCurrentPosition(successCallback, errorCallback, options);
 		}
 
 	}
@@ -86,11 +89,11 @@ var GeolocationWrapper = function() {
 	 */
 	this.watchPosition = function(successCallback, errorCallback, options) {
 
-		if(geo.api) {
-			geo.watchID = geo.api.watchPosition(successCallback, errorCallback, options);
+		if(geolocation.api) {
+			geolocation.watchID = geolocation.api.watchPosition(successCallback, errorCallback, options);
 		}
 
-		return geo.watchID;
+		return geolocation.watchID;
 
 	}
 
@@ -103,16 +106,16 @@ var GeolocationWrapper = function() {
 	this.clearWatch = function(watchID) {
 
 		if(watchID == NULL) {
-			geo.api.clearWatch(geo.watchID);
+			geolocation.api.clearWatch(geolocation.watchID);
 		} else {
-			geo.api.clearWatch(watchID);
+			geolocation.api.clearWatch(watchID);
 		}
 
 	}
 
 	this.init();
 
-}
+})();
 
 
 
@@ -120,7 +123,7 @@ var GeolocationWrapper = function() {
 /**
  * Geolocation API wrapper for Blackberry devices
  */
-var BlackberryLocation = function() {
+function BlackberryLocation() {
 
 	bb = this;
 
@@ -146,11 +149,11 @@ var BlackberryLocation = function() {
 	}
 
 	/**
-	 * Temporary watchPosition simulation for Blackberry
+	 * watchPosition simulation for Blackberry
 	 */
 	this.watchPosition = function(successCallback, errorCallback, options) {
 
-		interval = (typeof options.maximumAge != 'undefined') ? options.maximumAge : 3000;
+		interval = (typeof options.maximumAge != 'undefined') ? options.maximumAge : 5000;
 
 		watchID = window.setInterval(bb.getCurrentPosition, interval, successCallback, errorCallback, options);
 		return watchID;		

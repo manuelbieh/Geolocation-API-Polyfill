@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Geolocation</title>
+
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<!--<script src="gears_init.js"></script>-->
+<script src="http://code.google.com/apis/gears/gears_init.js"></script>
+<script>!window.google && document.write('<script src="gears_init.js"><\/script>');</script>
+<script src="geolocation.js"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=true&amp;key=ABQIAAAApI58w98iPWfY3kRwSUeY8xQSTrC-RPXcR3EIu2qCj1NIpspvxxTCTHuwjZ2LxuWy95HkN8ST5Fgp0g"></script>
+
+<script>
+
+if(navigator.geolocation) {
+	navigator.geolocation.getCurrentPosition(success, error, {enableHighAccuracy: true, maximumAge: 1000});
+} else {
+	error(); // no support
+}
+
+
+function success(position) {
+
+	alert('Your position: ' + position.coords.latitude + ', ' + position.coords.longitude);
+
+	var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+
+	var options = {
+		zoom: 16,
+		center: latlng,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+
+	var map = new google.maps.Map(document.getElementById("map"), options);
+
+	var marker = new google.maps.Marker({
+		position: latlng,
+		map: map,
+		title:"Your current position"
+	});
+
+}
+
+function error() {
+	alert('No Geolocation available or position could not be determined.');
+}
+
+</script>
+
+<style>
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+}
+
+#map {
+	height: 100%;
+	width: 100%;
+}
+</style>
+
+</head>
+<body>
+
+<div id="map"></div>
+
+</body>
+</html>
