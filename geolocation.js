@@ -16,7 +16,7 @@
  */
 
 
-(function() {
+;(function() {
 
 	var geolocation = this;
 
